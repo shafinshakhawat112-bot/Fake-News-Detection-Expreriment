@@ -2,103 +2,162 @@
 
 ## Abstract
 
-The rapid spread of misinformation online has increased the need for reliable methods of identifying fake news. This study compares two machine learning classifiers, Multinomial Naive Bayes and Logistic Regression, for binary fake news detection. The experiment uses the ISOT Fake and Real News dataset, containing labeled fake and real news articles. Text data are represented using Term Frequency–Inverse Document Frequency (TF-IDF), and both classifiers are evaluated using accuracy, precision, recall, and F1-score on the same test set. The test set contains 7,819 examples. The reported results show that Multinomial Naive Bayes achieved approximately 95% accuracy, while Logistic Regression achieved approximately 99%. These findings suggest that Logistic Regression performed better in this experimental setting. However, the results should be interpreted cautiously because performance on a particular dataset does not necessarily indicate effectiveness on new, unseen sources of news. Further evaluation on diverse and more recent datasets is needed.
+The spread of fake news has become a significant challenge in the digital information environment. Machine learning techniques can help identify misleading information by analysing patterns in textual content. This study investigates the performance of two machine learning classifiers, Multinomial Naive Bayes and Logistic Regression, for fake news detection using Term Frequency–Inverse Document Frequency (TF-IDF) features.
 
-1.Introduction-
+The experiment uses the ISOT Fake and Real News Dataset. After removing empty articles and duplicate content within each label, 39,095 articles were retained. The models were evaluated using accuracy, macro precision, macro recall, and macro F1-score. Logistic Regression achieved an accuracy of 98.77%, outperforming Multinomial Naive Bayes, which achieved 95.38%. The findings demonstrate the effectiveness of TF-IDF-based machine learning approaches on this dataset, while also highlighting the need to consider dataset-specific patterns when interpreting performance.
 
-Online news platforms and social media allow information to reach large audiences quickly. However, these platforms can also spread misleading or fabricated information. Fake news may influence public opinion, create confusion, and reduce trust in reliable information sources. Consequently, automatic fake news detection has become an important research topic in natural language processing and machine learning.
-Previous research has explored different approaches to fake news detection. Shu et al. (2017) reviewed fake news detection on social media and discussed the importance of analyzing news content and social context. Wang (2017) introduced the LIAR dataset, which supports research into automated classification of statements with different truthfulness labels. Zhou and Zafarani (2020) surveyed fake news detection methods and highlighted challenges involving data, detection techniques, and the changing nature of misinformation.
-Traditional machine learning methods provide a practical starting point for text classification. TF-IDF represents documents using numerical features based on the importance of words in a collection of documents. These features can then be used by classifiers to distinguish between categories.
-This study compares Multinomial Naive Bayes and Logistic Regression using TF-IDF features to determine which model performs better on the selected fake and real news dataset.
+## 1. Introduction
 
-### Research question
+Online news platforms and social media have made information easier to access and share. However, they have also increased the circulation of fake news and misleading information. The rapid spread of inaccurate content can influence public opinion and create confusion.
 
-Which classifier, Multinomial Naive Bayes or Logistic Regression, achieves better performance in fake news detection when both use TF-IDF text features and are evaluated on the same test set?
+Manual fact-checking requires time and human effort. Therefore, automated fake news detection has become an important research area in natural language processing and machine learning.
+
+This project explores whether machine learning classifiers can distinguish between fake and real news articles using their textual content.
+
+**Research Question:** How effectively can Multinomial Naive Bayes and Logistic Regression classify fake and real news articles using TF-IDF features?
 
 ## 2. Methodology
 
-### 2.1 Dataset-
+### 2.1 Dataset
 
-The experiment uses the ISOT Fake and Real News dataset, which contains news articles labeled as fake or real. The dataset files used in the project are `Fake.csv` and `True.csv`. The labels allow the task to be treated as a supervised binary classification problem.
-The reported test set contains 7,819 examples: 3,580 fake news examples and 4,239 real news examples.
+The experiment uses the ISOT Fake and Real News Dataset, consisting of two files:
 
-### 2.2 Text representation and preprocessing-
+* `Fake.csv`: Fake news articles.
+* `True.csv`: Real news articles.
 
-News articles are represented using Term Frequency–Inverse Document Frequency (TF-IDF). This technique assigns numerical weights to terms according to their frequency within a document and their distribution across the document collection. It converts text into features suitable for machine learning algorithms.
-The text preparation and feature extraction steps follow the existing project notebook. Both classifiers use the same experimental dataset and TF-IDF representation to support a fair comparison.
+The original dataset contained 44,898 articles. After removing empty text entries and duplicate content within each label, the dataset contained 39,095 articles:
 
-### 2.3 Machine learning models-
+| Category  | Number of Articles |
+| --------- | -----------------: |
+| Fake News |             17,900 |
+| Real News |             21,195 |
+| **Total** |         **39,095** |
 
-Two classifiers are evaluated:
+The dataset contains the columns `title`, `text`, `subject`, `date`, and `label`. The experiment uses the combined title and article text as model input. Subject and date are not used as direct features.
 
-- Multinomial Naive Bayes: A probabilistic classifier commonly used for text classification. It estimates class probabilities from the observed features using the Naive Bayes assumption of conditional independence.
-- **Logistic Regression:** A supervised classification algorithm that estimates class probabilities from input features and learns decision boundaries for distinguishing between categories.
+### 2.2 Data Preprocessing
 
-Both models are trained using the prepared training data and evaluated on the held-out test data.
+The following preprocessing operations were applied:
 
-## 2.4 Evaluation metrics
+1. Missing titles and text values were replaced with empty strings.
+2. Article titles and main text were combined into a single text field.
+3. Text was converted to lowercase.
+4. URLs were removed.
+5. Whitespace was normalised.
+6. Articles with empty text were removed.
+7. Duplicate content was removed within each label.
 
-The models are compared using four standard classification metrics:
+These steps prepared the textual data for feature extraction and model training.
 
--Accuracy: The proportion of all predictions that are correct.
--Precision: The proportion of predicted positive examples that are actually positive.
--Recall: The proportion of actual positive examples that are correctly identified.
--F1-score: The harmonic mean of precision and recall.
+### 2.3 Feature Extraction: TF-IDF
 
-These metrics provide a broader view of performance than accuracy alone. The precise interpretation of class-specific precision, recall, and F1-score depends on the label treated as positive.
+Term Frequency–Inverse Document Frequency (TF-IDF) was used to convert news articles into numerical feature vectors.
+
+The vectoriser was configured with the following parameters:
+
+| Parameter                  | Value   |
+| -------------------------- | ------- |
+| Maximum features           | 30,000  |
+| N-gram range               | (1, 2)  |
+| Minimum document frequency | 2       |
+| Accent handling            | Unicode |
+
+Unigrams and bigrams were included to capture individual words and two-word combinations.
+
+The TF-IDF vectoriser was fitted on the training data and then used to transform the test data. This ensured that the vocabulary and inverse document frequency values were learned from the training set rather than the test set.
+
+### 2.4 Machine Learning Models
+
+Two supervised machine learning algorithms were implemented.
+
+**Multinomial Naive Bayes**
+
+Multinomial Naive Bayes is a probabilistic classifier commonly used for text classification. It estimates the probability of a class based on the frequency of words and other text features.
+
+**Logistic Regression**
+
+Logistic Regression is a supervised classification algorithm that estimates the probability of an input belonging to a particular class. It is commonly applied to high-dimensional text classification problems.
+
+Both models were trained using the TF-IDF feature representations.
+
+### 2.5 Train-Test Data
+
+The dataset was divided into training and testing sets.
+
+| Dataset      | Number of Articles |
+| ------------ | -----------------: |
+| Training set |             31,276 |
+| Testing set  |              7,819 |
+| **Total**    |         **39,095** |
+
+The test set contained 3,580 fake news articles and 4,239 real news articles.
+
+### 2.6 Evaluation Metrics
+
+The models were evaluated using four metrics:
+
+* **Accuracy:** Measures the proportion of correctly classified articles.
+* **Macro Precision:** Calculates precision for each class and takes their unweighted average.
+* **Macro Recall:** Calculates recall for each class and takes their unweighted average.
+* **Macro F1-score:** Calculates the F1-score for each class and takes their unweighted average.
+
+Macro-averaged metrics provide a view of performance across both classes.
 
 ## 3. Results
 
-## Table 1. Approximate performance comparison of the classifiers
+The two classifiers produced the following results on the test dataset:
 
-| Evaluation metric | Multinomial Naive Bayes | Logistic Regression |
-|---|---:|---:|
-| Accuracy | 95% | 99% |
-| Precision | 95% | 99% |
-| Recall | 95% | 99% |
-| F1-score | 95% | 99% |
+| Evaluation Metric | Multinomial Naive Bayes | Logistic Regression |
+| ----------------- | ----------------------: | ------------------: |
+| Accuracy          |                  95.38% |              98.77% |
+| Macro Precision   |                  95.38% |              98.80% |
+| Macro Recall      |                  95.32% |              98.73% |
+| Macro F1-score    |                  95.35% |              98.76% |
 
-*Note: Values are rounded approximations from the existing experiment summary. Replace them with the exact values from the notebook before final submission.*
+Logistic Regression achieved the highest performance across all four evaluation metrics.
 
-Table 1 indicates that Logistic Regression achieved higher reported performance than Multinomial Naive Bayes across the four evaluation metrics. Its approximate accuracy was four percentage points higher.
-
-### Table 2. Distribution of test-set examples
-
-| News category | Number of examples | Percentage |
-|      Fake     |        3,580       | 45.79% |
-|      Real     |        4,239       | 54.21% |
-|     *Total    |        7,819       | 100.00%|
-
-Table 2 shows that the test set contains slightly more real news examples than fake news examples. Both categories have substantial representation, although the distribution is not perfectly balanced.
-The results suggest that both classifiers can distinguish between fake and real news in this dataset, with Logistic Regression achieving the stronger reported performance.
+Its accuracy was 98.77%, compared with 95.38% for Multinomial Naive Bayes. This represents an improvement of 3.39 percentage points in accuracy.
 
 ## 4. Discussion
 
-The experimental results favor Logistic Regression over Multinomial Naive Bayes for the selected dataset and TF-IDF representation. One possible explanation is that Logistic Regression can learn discriminative weights for individual text features, allowing it to separate the two classes effectively. Multinomial Naive Bayes uses a different probabilistic approach and relies on simplifying assumptions about feature independence.
-However, the comparison does not establish that Logistic Regression is always superior for fake news detection. The outcome depends on the dataset, preprocessing, feature representation, parameter settings, and evaluation procedure.
+The experimental results indicate that both classifiers performed effectively on the ISOT dataset. However, Logistic Regression consistently outperformed Multinomial Naive Bayes.
 
-### Limitations
+One possible explanation is that Logistic Regression can learn more flexible decision boundaries from high-dimensional TF-IDF features. This may help it capture useful word patterns and combinations in the news articles.
 
-This study has several limitations.
+The results also demonstrate that TF-IDF can provide useful textual representations for traditional machine learning classifiers.
 
-First, the experiment uses one dataset. Its results may not generalize to news from different countries, publishers, topics, or time periods.
+However, high test accuracy does not necessarily mean that a model can reliably identify fake news in every real-world situation. Models may learn dataset-specific writing styles, source patterns, or formatting signals rather than general indicators of misinformation.
 
-Second, TF-IDF primarily represents textual patterns. It does not independently verify factual claims, examine the original evidence, or establish the credibility of a publisher.
+An additional investigation of frequent terms revealed notable differences between the two labels. For example, the term "Reuters" appeared in 1.23% of fake articles and 99.82% of real articles. Similarly, "Breaking" appeared in 6.59% of fake articles and 1.80% of real articles, while "Read more" appeared in 9.53% of fake articles and 0.04% of real articles.
 
-Third, the performance metrics depend on the selected test set. Further experiments using additional datasets and different data splits would help assess the stability of the results.
+These patterns suggest that the classifiers may benefit from source-related or formatting-related signals in the dataset. Such signals could contribute to high classification performance without necessarily representing reliable evidence of misinformation.
 
-Finally, the high reported accuracy of Logistic Regression should not be interpreted as proof that the model can reliably identify every form of misinformation. Dataset-specific patterns or similarities between training and test examples may influence performance.
+## 5. Limitations
 
-Future work could evaluate additional classifiers, investigate feature selection and parameter tuning, test models on newer news articles, and examine confusion matrices and class-specific performance.
+This experiment has several limitations:
 
-## 5. Conclusion
+1. **Dataset dependency:** The models were evaluated using one dataset. Their performance may differ on news articles from other sources or platforms.
+2. **Dataset-specific patterns:** The classifiers may learn writing styles, source names, or formatting patterns associated with the dataset labels.
+3. **Duplicate investigation:** Duplicate content was removed within each label, but cross-label duplicate content was not separately investigated.
+4. **Limited model selection:** Only Multinomial Naive Bayes and Logistic Regression were evaluated.
+5. **No external validation:** The models were not tested on an independent external news dataset.
 
-This study compared Multinomial Naive Bayes and Logistic Regression for fake news detection using TF-IDF features and the ISOT Fake and Real News dataset. The reported experiment showed that both classifiers performed well, while Logistic Regression achieved higher approximate accuracy, precision, recall, and F1-score. These findings support its use as a promising baseline for this particular classification task. Nevertheless, successful classification of a fixed dataset does not guarantee reliable detection of misinformation in real-world settings. Testing on diverse and recent news sources, reporting exact evaluation metrics, and investigating potential data leakage are important next steps toward developing more robust fake news detection systems.
+Future research could address these limitations by using additional datasets, investigating cross-label duplicates, testing more advanced models, and evaluating performance on unseen news sources.
 
-## References
+## 6. Conclusion
 
-Shu, K., Sliva, A., Wang, S., Tang, J., & Liu, H. (2017). Fake news detection on social media: A data mining perspective. *ACM SIGKDD Explorations Newsletter, 19*(1), 22–36. https://doi.org/10.1145/3137597.3137600
+This project investigated fake news detection using TF-IDF feature extraction and two machine learning classifiers: Multinomial Naive Bayes and Logistic Regression.
 
-Wang, W. Y. (2017). “Liar, liar pants on fire”: A new benchmark dataset for fake news detection. In *Proceedings of the 55th Annual Meeting of the Association for Computational Linguistics (Volume 2: Short Papers)* (pp. 422–426). Association for Computational Linguistics. https://doi.org/10.18653/v1/P17-2067
+Both models achieved strong results on the ISOT Fake and Real News Dataset. Logistic Regression performed better, achieving 98.77% accuracy and a macro F1-score of 98.76%, while Multinomial Naive Bayes achieved 95.38% accuracy and a macro F1-score of 95.35%.
 
-Zhou, X., & Zafarani, R. (2020). A survey of fake news: Fundamental theories, detection methods, and opportunities. *ACM Computing Surveys, 53*(5), Article 109. https://doi.org/10.1145/3395046
+The findings suggest that traditional machine learning algorithms can be effective for text classification. Nevertheless, the results should be interpreted carefully because dataset-specific patterns may influence model performance.
+
+Future work should focus on improving generalisation, evaluating models on independent datasets, and developing methods that identify misleading information rather than simply recognising writing styles or source patterns.
+
+## 7. References
+
+1. Shu, K., Sliva, A., Wang, S., Tang, J., & Liu, H. (2017). Fake News Detection on Social Media: A Data Mining Perspective. *ACM SIGKDD Explorations Newsletter, 19*(1), 22–36. doi:10.1145/3137597.3137600
+
+2. Wang, W. Y. (2017). "Liar, Liar Pants on Fire": A New Benchmark Dataset for Fake News Detection. *Proceedings of the 55th Annual Meeting of the Association for Computational Linguistics*, 422–426. doi:10.18653/v1/P17-2067
+
+3. Zhou, X., & Zafarani, R. (2020). A Survey of Fake News: Fundamental Theories, Detection Methods, and Opportunities. *ACM Computing Surveys, 53*(5), Article 109. doi:10.1145/3395046
